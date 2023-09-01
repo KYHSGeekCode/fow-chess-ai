@@ -8,8 +8,18 @@ import numpy as np
 import pygame
 from pygame.rect import Rect
 
-sys.path.append('..')
-from rts.src.config import NUM_ACTS, P_NAME_IDX, A_TYPE_IDX, d_user_shortcuts, FPS, ACTS, d_a_type, ACTS_REV, d_user_shortcuts_rev
+sys.path.append("..")
+from rts.src.config import (
+    NUM_ACTS,
+    P_NAME_IDX,
+    A_TYPE_IDX,
+    d_user_shortcuts,
+    FPS,
+    ACTS,
+    d_a_type,
+    ACTS_REV,
+    d_user_shortcuts_rev,
+)
 from rts.visualization.rts_pygame import init_visuals, update_graphics, message_display
 from utils import dotdict
 
@@ -50,19 +60,19 @@ class HumanRTSPlayer:
         valid = self.game.getValidMoves(board, 1)
         self.display_valid_moves(board, valid)
         while True:
-
             if CONFIG.visibility > 3:
                 a = self._manage_input(board)
                 x, y, action_index = a
 
             else:
-                a = (input('type one of above actions in "x y action_index" format\n')).split(" ")
+                a = (
+                    input('type one of above actions in "x y action_index" format\n')
+                ).split(" ")
                 x, y, action = a
                 action_index = ACTS[action]
             # convert to action index in valids array
 
             try:
-
                 tup = (int(y), int(x), int(action_index))
                 a = np.ravel_multi_index(tup, (n, n, NUM_ACTS))
             except Exception as e:
@@ -70,7 +80,7 @@ class HumanRTSPlayer:
             if valid[a]:
                 break
             else:
-                print('This action is invalid!')
+                print("This action is invalid!")
                 self.display_valid_moves(board, valid)
 
         return a
@@ -100,13 +110,18 @@ class HumanRTSPlayer:
         :return: game tile coordinate (x,y)
         """
         n = board.shape[0]
-        canvas_scale = int(ctypes.windll.user32.GetSystemMetrics(1) * (16 / 30) / n)  # for drawing - it takes 2 thirds of screen height
+        canvas_scale = int(
+            ctypes.windll.user32.GetSystemMetrics(1) * (16 / 30) / n
+        )  # for drawing - it takes 2 thirds of screen height
 
         # select object by clicking on it - you can select only your objects
 
         for y in range(n):
             for x in range(n):
-                actor_location = (int(x * canvas_scale + canvas_scale / 2 + canvas_scale), int(y * canvas_scale + canvas_scale / 2) + canvas_scale)
+                actor_location = (
+                    int(x * canvas_scale + canvas_scale / 2 + canvas_scale),
+                    int(y * canvas_scale + canvas_scale / 2) + canvas_scale,
+                )
                 actor_x, actor_y = actor_location
                 actor_size = int(canvas_scale / 3)
 
@@ -131,7 +146,9 @@ class HumanRTSPlayer:
         game_display, clock = init_visuals(n, n, CONFIG.visibility)
         update_graphics(board, game_display, clock, FPS)
 
-        canvas_scale: int = int(ctypes.windll.user32.GetSystemMetrics(1) * (16 / 30) / n)
+        canvas_scale: int = int(
+            ctypes.windll.user32.GetSystemMetrics(1) * (16 / 30) / n
+        )
         clicked_actor = None
         clicked_actor_index_arr = []
         while True:
@@ -141,10 +158,11 @@ class HumanRTSPlayer:
                     pygame.quit()
                     raise SystemExit(0)
                 if event.type == pygame.KEYDOWN:
-
-                    if clicked_actor and (board[clicked_actor.x][clicked_actor.y][P_NAME_IDX] == self.USER_PLAYER):
+                    if clicked_actor and (
+                        board[clicked_actor.x][clicked_actor.y][P_NAME_IDX]
+                        == self.USER_PLAYER
+                    ):
                         try:
-
                             shortcut_pressed = d_user_shortcuts[event.unicode]
                             action_to_execute = shortcut_pressed
                             clicked_actor_index_arr.append(action_to_execute)
@@ -163,7 +181,13 @@ class HumanRTSPlayer:
 
                     if event.button == lmb:
                         clicked_actor = self.select_object(board, pos)
-                        if clicked_actor and board[clicked_actor.x][clicked_actor.y][P_NAME_IDX] == self.USER_PLAYER and board[clicked_actor.x][clicked_actor.y][A_TYPE_IDX] != d_a_type['Gold']:
+                        if (
+                            clicked_actor
+                            and board[clicked_actor.x][clicked_actor.y][P_NAME_IDX]
+                            == self.USER_PLAYER
+                            and board[clicked_actor.x][clicked_actor.y][A_TYPE_IDX]
+                            != d_a_type["Gold"]
+                        ):
                             clicked_actor_index_arr = [clicked_actor.x, clicked_actor.y]
 
                             # draw selected bounding box
@@ -171,11 +195,28 @@ class HumanRTSPlayer:
                             update_graphics(board, game_display, clock, FPS)
 
                             actor_size = int(canvas_scale / 3)
-                            actor_location = (int(clicked_actor.x * canvas_scale + canvas_scale / 2 + canvas_scale - actor_size), int(clicked_actor.y * canvas_scale + canvas_scale / 2 + canvas_scale - actor_size))
-                            rect = Rect(actor_location, (2 * actor_size, 2 * actor_size))
+                            actor_location = (
+                                int(
+                                    clicked_actor.x * canvas_scale
+                                    + canvas_scale / 2
+                                    + canvas_scale
+                                    - actor_size
+                                ),
+                                int(
+                                    clicked_actor.y * canvas_scale
+                                    + canvas_scale / 2
+                                    + canvas_scale
+                                    - actor_size
+                                ),
+                            )
+                            rect = Rect(
+                                actor_location, (2 * actor_size, 2 * actor_size)
+                            )
 
                             blue = (0, 0, 255)
-                            pygame.draw.rect(game_display, blue, rect, int(canvas_scale / 20))
+                            pygame.draw.rect(
+                                game_display, blue, rect, int(canvas_scale / 20)
+                            )
 
                             # display valid actions on canvas
                             b = Board(n)
@@ -185,14 +226,33 @@ class HumanRTSPlayer:
                                 config = CONFIG.player1_config
                             else:
                                 config = CONFIG.player2_config
-                            valids_square = b.get_moves_for_square(clicked_actor.x, clicked_actor.y, config=config)
+                            valids_square = b.get_moves_for_square(
+                                clicked_actor.x, clicked_actor.y, config=config
+                            )
 
                             printed_actions = 0
                             for i in range(len(valids_square)):
                                 if valids_square[i]:
                                     text_scale = int(actor_size * 0.5)
-                                    message_display(game_display, u"" + ACTS_REV[i] + " s: '" + d_user_shortcuts_rev[i] + "'", (3 * canvas_scale + int(printed_actions % 3) * canvas_scale * 2, (n + 1) * canvas_scale + text_scale / 2 + int(printed_actions / 3) * text_scale + int(text_scale / 4)),
-                                                    text_scale)
+                                    message_display(
+                                        game_display,
+                                        ""
+                                        + ACTS_REV[i]
+                                        + " s: '"
+                                        + d_user_shortcuts_rev[i]
+                                        + "'",
+                                        (
+                                            3 * canvas_scale
+                                            + int(printed_actions % 3)
+                                            * canvas_scale
+                                            * 2,
+                                            (n + 1) * canvas_scale
+                                            + text_scale / 2
+                                            + int(printed_actions / 3) * text_scale
+                                            + int(text_scale / 4),
+                                        ),
+                                        text_scale,
+                                    )
                                     printed_actions += 1
                             # update display
                             pygame.display.update()
@@ -201,7 +261,6 @@ class HumanRTSPlayer:
                             print("You can select only your actors!")
                     if event.button == rmb:
                         if clicked_actor:
-
                             l_x = clicked_actor.x
                             l_y = clicked_actor.y
                             l_type = board[l_x][l_y][A_TYPE_IDX]
@@ -209,32 +268,57 @@ class HumanRTSPlayer:
                             right_clicked_actor = self.select_object(board, pos)
 
                             # right clicked actor exists and (if player 1 or player -1) and not clicked self
-                            if right_clicked_actor and board[right_clicked_actor.x][right_clicked_actor.y][P_NAME_IDX] != 0 and right_clicked_actor != clicked_actor:
+                            if (
+                                right_clicked_actor
+                                and board[right_clicked_actor.x][right_clicked_actor.y][
+                                    P_NAME_IDX
+                                ]
+                                != 0
+                                and right_clicked_actor != clicked_actor
+                            ):
                                 r_x = right_clicked_actor.x
                                 r_y = right_clicked_actor.y
                                 r_type = board[r_x][r_y][A_TYPE_IDX]
                                 r_player = board[r_x][r_y][P_NAME_IDX]
 
                                 # this is actor of type MyActor
-                                if l_type == d_a_type['Work']:
+                                if l_type == d_a_type["Work"]:
                                     if r_player == self.USER_PLAYER:
-                                        if r_type == d_a_type['Gold']:
-                                            clicked_actor_index_arr.append(ACTS["mine_resources"])
-                                        if r_type == d_a_type['Hall']:
-                                            clicked_actor_index_arr.append(ACTS["return_resources"])
+                                        if r_type == d_a_type["Gold"]:
+                                            clicked_actor_index_arr.append(
+                                                ACTS["mine_resources"]
+                                            )
+                                        if r_type == d_a_type["Hall"]:
+                                            clicked_actor_index_arr.append(
+                                                ACTS["return_resources"]
+                                            )
 
-                                if l_type == d_a_type['Rifl']:
-                                    if r_player != self.USER_PLAYER and r_type != d_a_type['Gold']:
+                                if l_type == d_a_type["Rifl"]:
+                                    if (
+                                        r_player != self.USER_PLAYER
+                                        and r_type != d_a_type["Gold"]
+                                    ):
                                         clicked_actor_index_arr.append(ACTS["attack"])
                             else:
-
                                 actor_size = int(canvas_scale / 3)
 
                                 clicked_x, clicked_y = pos
 
-                                clicked_actors_world_x = int(l_x * canvas_scale + canvas_scale / 2 + canvas_scale - actor_size)
-                                clicked_actors_world_y = int(l_y * canvas_scale + canvas_scale / 2 + canvas_scale - actor_size)
-                                if abs(clicked_y - clicked_actors_world_y) > abs(clicked_x - clicked_actors_world_x):
+                                clicked_actors_world_x = int(
+                                    l_x * canvas_scale
+                                    + canvas_scale / 2
+                                    + canvas_scale
+                                    - actor_size
+                                )
+                                clicked_actors_world_y = int(
+                                    l_y * canvas_scale
+                                    + canvas_scale / 2
+                                    + canvas_scale
+                                    - actor_size
+                                )
+                                if abs(clicked_y - clicked_actors_world_y) > abs(
+                                    clicked_x - clicked_actors_world_x
+                                ):
                                     # we moved mouse more in y direction than x, so its vertical movement
                                     if clicked_y < clicked_actors_world_y:
                                         print("clicked up...")

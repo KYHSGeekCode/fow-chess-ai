@@ -8,7 +8,7 @@ class RandomPlayer:
     def play(self, board):
         a = np.random.randint(self.game.getActionSize())
         valids = self.game.getValidMoves(board, 1)
-        while valids[a]!=1:
+        while valids[a] != 1:
             a = np.random.randint(self.game.getActionSize())
         return a
 
@@ -27,7 +27,7 @@ class GreedyRandomPlayer:
             if new_score > previous_score:
                 return action
         a = np.random.randint(self.game.getActionSize())
-        while valids[a]!=1:
+        while valids[a] != 1:
             a = np.random.randint(self.game.getActionSize())
         return a
 
@@ -46,4 +46,4 @@ class HumanDotsAndBoxesPlayer:
             a = int(input())
             if valids[a]:
                 return a
-            print('Invalid move')
+            print("Invalid move")

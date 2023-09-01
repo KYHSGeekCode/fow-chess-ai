@@ -41,14 +41,16 @@ Example of longer learning with high number of eps and mcts sims.
 
 # ################################# RUN 1 ##############################################
 
-CONFIG = Configuration(num_iters=100,
-                       num_iters_for_train_examples_history=30,
-                       num_eps=4,
-                       num_mcts_sims=5,
-                       arena_compare=7,
-                       epochs=100,
-                       initial_gold_player1=10,
-                       initial_gold_player2=10)
+CONFIG = Configuration(
+    num_iters=100,
+    num_iters_for_train_examples_history=30,
+    num_eps=4,
+    num_mcts_sims=5,
+    arena_compare=7,
+    epochs=100,
+    initial_gold_player1=10,
+    initial_gold_player2=10,
+)
 # Release:
 """
 https://github.com/JernejHabjan/alpha-zero-general/releases/tag/1.0.0

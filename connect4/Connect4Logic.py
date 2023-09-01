@@ -5,10 +5,10 @@ DEFAULT_HEIGHT = 6
 DEFAULT_WIDTH = 7
 DEFAULT_WIN_LENGTH = 4
 
-WinState = namedtuple('WinState', 'is_ended winner')
+WinState = namedtuple("WinState", "is_ended winner")
 
 
-class Board():
+class Board:
     """
     Connect4 Board.
     """
@@ -27,7 +27,7 @@ class Board():
 
     def add_stone(self, column, player):
         "Create copy of board containing new stone."
-        available_idx, = np.where(self.np_pieces[:, column] == 0)
+        (available_idx,) = np.where(self.np_pieces[:, column] == 0)
         if len(available_idx) == 0:
             raise ValueError("Can't play column %s on board %s" % (column, self))
 
@@ -41,9 +41,11 @@ class Board():
         for player in [-1, 1]:
             player_pieces = self.np_pieces == -player
             # Check rows & columns for win
-            if (self._is_straight_winner(player_pieces) or
-                self._is_straight_winner(player_pieces.transpose()) or
-                self._is_diagonal_winner(player_pieces)):
+            if (
+                self._is_straight_winner(player_pieces)
+                or self._is_straight_winner(player_pieces.transpose())
+                or self._is_diagonal_winner(player_pieces)
+            ):
                 return WinState(True, -player)
 
         # draw has very little value.
@@ -73,8 +75,10 @@ class Board():
 
     def _is_straight_winner(self, player_pieces):
         """Checks if player_pieces contains a vertical or horizontal win."""
-        run_lengths = [player_pieces[:, i:i + self.win_length].sum(axis=1)
-                       for i in range(len(player_pieces) - self.win_length + 2)]
+        run_lengths = [
+            player_pieces[:, i : i + self.win_length].sum(axis=1)
+            for i in range(len(player_pieces) - self.win_length + 2)
+        ]
         return max([x.max() for x in run_lengths]) >= self.win_length
 
     def __str__(self):

@@ -1,7 +1,7 @@
 import sys
 import numpy as np
 
-sys.path.append('..')
+sys.path.append("..")
 from Game import Game
 from .Connect4Logic import Board
 
@@ -46,7 +46,7 @@ class Connect4Game(Game):
             elif winstate.winner == -player:
                 return -1
             else:
-                raise ValueError('Unexpected winstate found: ', winstate)
+                raise ValueError("Unexpected winstate found: ", winstate)
         else:
             # 0 used to represent unfinished game.
             return 0
@@ -65,6 +65,6 @@ class Connect4Game(Game):
     @staticmethod
     def display(board):
         print(" -----------------------")
-        print(' '.join(map(str, range(len(board[0])))))
+        print(" ".join(map(str, range(len(board[0])))))
         print(board)
         print(" -----------------------")

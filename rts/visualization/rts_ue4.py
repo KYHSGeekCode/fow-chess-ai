@@ -4,8 +4,10 @@ import os
 
 import numpy as np
 import tensorflow as tf
+
 # noinspection PyUnresolvedReferences
 import unreal_engine as ue
+
 # noinspection PyUnresolvedReferences
 from TFPluginAPI import TFPluginAPI
 
@@ -45,11 +47,11 @@ class TD2020LearnAPI(TFPluginAPI):
         with graph.as_default():
             session = tf.Session()
             with session.as_default():
-                current_directory = os.path.join(os.path.dirname(__file__), 'temp/')
+                current_directory = os.path.join(os.path.dirname(__file__), "temp/")
                 self.g = RTSGame()
                 n1 = NNet(self.g, OneHotEncoder())
-                n1.load_checkpoint(current_directory, 'best.pth.tar')
-                args = dotdict({'numMCTSSims': 2, 'cpuct': 1.0})
+                n1.load_checkpoint(current_directory, "best.pth.tar")
+                args = dotdict({"numMCTSSims": 2, "cpuct": 1.0})
                 self.mcts = MCTS(self.g, n1, args)
 
                 self.graph_var = graph
@@ -67,36 +69,41 @@ class TD2020LearnAPI(TFPluginAPI):
         """
         if not self.setup:
             return
-        encoded_actors = jsonInput['data']
+        encoded_actors = jsonInput["data"]
         initial_board_config = []
         for encoded_actor in encoded_actors:
             initial_board_config.append(
-                dotdict({
-                    'x': encoded_actor['x'],
-                    'y': encoded_actor['y'],
-                    'player': encoded_actor['player'],
-                    'a_type': encoded_actor['actorType'],
-                    'health': encoded_actor['health'],
-                    'carry': encoded_actor['carry'],
-                    'gold': encoded_actor['money'],
-                    'timeout': encoded_actor['remaining']
-                })
+                dotdict(
+                    {
+                        "x": encoded_actor["x"],
+                        "y": encoded_actor["y"],
+                        "player": encoded_actor["player"],
+                        "a_type": encoded_actor["actorType"],
+                        "health": encoded_actor["health"],
+                        "carry": encoded_actor["carry"],
+                        "gold": encoded_actor["money"],
+                        "timeout": encoded_actor["remaining"],
+                    }
+                )
             )
 
         self.initial_board_config = initial_board_config
-        self.owning_player = jsonInput['player']
+        self.owning_player = jsonInput["player"]
         ######
         with self.graph_var.as_default():
             with self.session_var.as_default():
                 self.g.setInitBoard(self.initial_board_config)
                 b = self.g.getInitBoard()
 
-                def n1p(board): return np.argmax(self.mcts.getActionProb(board, temp=0))
+                def n1p(board):
+                    return np.argmax(self.mcts.getActionProb(board, temp=0))
 
                 canonical_board = self.g.getCanonicalForm(b, self.owning_player)
 
                 recommended_act = n1p(canonical_board)
-                y, x, action_index = np.unravel_index(recommended_act, [b.shape[0], b.shape[0], NUM_ACTS])
+                y, x, action_index = np.unravel_index(
+                    recommended_act, [b.shape[0], b.shape[0], NUM_ACTS]
+                )
 
                 # gc.collect()
                 act = {"x": str(x), "y": str(y), "action": ACTS_REV[action_index]}

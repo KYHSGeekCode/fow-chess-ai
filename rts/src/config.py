@@ -4,7 +4,7 @@ from typing import List, Tuple
 
 import numpy as np
 
-sys.path.append('../..')
+sys.path.append("../..")
 from rts.src.encoders import OneHotEncoder, NumericEncoder
 from utils import dotdict
 
@@ -51,130 +51,195 @@ TIME_IDX = 5
 
 
 # Dictionary for actors
-d_a_type = dotdict({
-    'Gold': 1,
-    'Work': 2,
-    'Barr': 3,
-    'Rifl': 4,
-    'Hall': 5,
-})
+d_a_type = dotdict(
+    {
+        "Gold": 1,
+        "Work": 2,
+        "Barr": 3,
+        "Rifl": 4,
+        "Hall": 5,
+    }
+)
 
 # Reverse dictionary for actors
-d_type_rev = dotdict({
-    1: 'Gold',
-    2: 'Work',
-    3: 'Barr',
-    4: 'Rifl',
-    5: 'Hall',
-})
+d_type_rev = dotdict(
+    {
+        1: "Gold",
+        2: "Work",
+        3: "Barr",
+        4: "Rifl",
+        5: "Hall",
+    }
+)
 
 # ##################################
 # ########## ACTIONS ###############
 # ##################################
 
 # Dictionary for actions and which actor can execute them
-d_acts = dotdict({
-    1: [],  # Gold
-    2: ['up', 'down', 'left', 'right', 'mine_resources', 'return_resources', 'barracks_up', 'barracks_down', 'barracks_right', 'barracks_left', 'town_hall_up', 'town_hall_down', 'town_hall_right', 'town_hall_left', 'idle', 'heal_up', 'heal_down', 'heal_right', 'heal_left'],  # Work
-    3: ['rifle_infantry_up', 'rifle_infantry_down', 'rifle_infantry_right', 'rifle_infantry_left', 'idle', 'heal_up', 'heal_down', 'heal_right', 'heal_left'],  # Barr
-    4: ['up', 'down', 'left', 'right', 'attack_up', 'attack_down', 'attack_right', 'attack_left', 'idle', 'heal_up', 'heal_down', 'heal_right', 'heal_left'],  # Rifl
-    5: ['npc_up', 'npc_down', 'npc_right', 'npc_left', 'idle', 'heal_up', 'heal_down', 'heal_right', 'heal_left'],  # Hall
-})
+d_acts = dotdict(
+    {
+        1: [],  # Gold
+        2: [
+            "up",
+            "down",
+            "left",
+            "right",
+            "mine_resources",
+            "return_resources",
+            "barracks_up",
+            "barracks_down",
+            "barracks_right",
+            "barracks_left",
+            "town_hall_up",
+            "town_hall_down",
+            "town_hall_right",
+            "town_hall_left",
+            "idle",
+            "heal_up",
+            "heal_down",
+            "heal_right",
+            "heal_left",
+        ],  # Work
+        3: [
+            "rifle_infantry_up",
+            "rifle_infantry_down",
+            "rifle_infantry_right",
+            "rifle_infantry_left",
+            "idle",
+            "heal_up",
+            "heal_down",
+            "heal_right",
+            "heal_left",
+        ],  # Barr
+        4: [
+            "up",
+            "down",
+            "left",
+            "right",
+            "attack_up",
+            "attack_down",
+            "attack_right",
+            "attack_left",
+            "idle",
+            "heal_up",
+            "heal_down",
+            "heal_right",
+            "heal_left",
+        ],  # Rifl
+        5: [
+            "npc_up",
+            "npc_down",
+            "npc_right",
+            "npc_left",
+            "idle",
+            "heal_up",
+            "heal_down",
+            "heal_right",
+            "heal_left",
+        ],  # Hall
+    }
+)
 
 # Reverse dictionary for actions
-d_acts_int = dotdict({
-    1: [],  # Gold
-    2: [1, 2, 3, 4, 5, 6, 19, 20, 21, 22, 23, 24, 25, 26, 0, 27, 28, 29, 30],  # Work
-    3: [15, 16, 17, 18, 0, 27, 28, 29, 30],  # Barr
-    4: [1, 2, 3, 4, 7, 8, 9, 10, 0, 27, 28, 29, 30],  # Rifl
-    5: [11, 12, 13, 14, 0, 27, 28, 29, 30],  # Hall
-})
+d_acts_int = dotdict(
+    {
+        1: [],  # Gold
+        2: [
+            1,
+            2,
+            3,
+            4,
+            5,
+            6,
+            19,
+            20,
+            21,
+            22,
+            23,
+            24,
+            25,
+            26,
+            0,
+            27,
+            28,
+            29,
+            30,
+        ],  # Work
+        3: [15, 16, 17, 18, 0, 27, 28, 29, 30],  # Barr
+        4: [1, 2, 3, 4, 7, 8, 9, 10, 0, 27, 28, 29, 30],  # Rifl
+        5: [11, 12, 13, 14, 0, 27, 28, 29, 30],  # Hall
+    }
+)
 
 # Defining all actions
 ACTS = {
     "idle": 0,
-
     "up": 1,
     "down": 2,
     "right": 3,
     "left": 4,
-
     "mine_resources": 5,
     "return_resources": 6,
-
     "attack_up": 7,
     "attack_down": 8,
     "attack_right": 9,
     "attack_left": 10,
-
     "npc_up": 11,
     "npc_down": 12,
     "npc_right": 13,
     "npc_left": 14,
-
     "rifle_infantry_up": 15,
     "rifle_infantry_down": 16,
     "rifle_infantry_right": 17,
     "rifle_infantry_left": 18,
-
     "barracks_up": 19,
     "barracks_down": 20,
     "barracks_right": 21,
     "barracks_left": 22,
-
     "town_hall_up": 23,
     "town_hall_down": 24,
     "town_hall_right": 25,
     "town_hall_left": 26,
-
     "heal_up": 27,
     "heal_down": 28,
     "heal_right": 29,
-    "heal_left": 30
-
+    "heal_left": 30,
 }
 
 # Reverse dictionary for all actions
 ACTS_REV = {
     0: "idle",
-
     1: "up",
     2: "down",
     3: "right",
     4: "left",
-
     5: "mine_resources",
     6: "return_resources",
-
     7: "attack_up",
     8: "attack_down",
     9: "attack_right",
     10: "attack_left",
-
     11: "npc_up",
     12: "npc_down",
     13: "npc_right",
     14: "npc_left",
-
     15: "rifle_infantry_up",
     16: "rifle_infantry_down",
     17: "rifle_infantry_right",
     18: "rifle_infantry_left",
-
     19: "barracks_up",
     20: "barracks_down",
     21: "barracks_right",
     22: "barracks_left",
-
     23: "town_hall_up",
     24: "town_hall_down",
     25: "town_hall_right",
     26: "town_hall_left",
-
     27: "heal_up",
     28: "heal_down",
     29: "heal_right",
-    30: "heal_left"
+    30: "heal_left",
 }
 
 # Count of all actions
@@ -185,108 +250,111 @@ NUM_ACTS = len(ACTS)
 # ####################################################################################
 
 # User shortcuts that player can use using Pygame
-d_user_shortcuts = dotdict({
-    ' ': 0,  # idle
-    'w': 1,  # up
-    's': 2,  # down
-    'd': 3,  # right
-    'a': 4,  # left
-    'q': 5,  # mine_resources
-    'e': 6,  # return_resources
-    '1': 7,  # attack_up
-    '2': 8,  # attack_down
-    '3': 9,  # attack_right
-    '4': 10,  # attack_left
-    '6': 11,  # npc_up
-    '7': 12,  # npc_down
-    '8': 13,  # npc_right
-    '9': 14,  # npc_left
-    't': 15,  # rifle_infantry_up
-    'z': 16,  # rifle_infantry_down
-    'u': 17,  # rifle_infantry_right
-    'i': 18,  # rifle_infantry_left
-    'f': 19,  # barracks_up
-    'g': 20,  # barracks_down
-    'h': 21,  # barracks_right
-    'j': 22,  # barracks_left
-    'y': 23,  # town_hall_up
-    'x': 24,  # town_hall_down
-    'c': 25,  # town_hall_right
-    'v': 26,  # town_hall_left
-    'b': 27,  # heal_up
-    'n': 28,  # heal_down
-    'm': 29,  # heal_right
-    ',': 30,  # heal_left
-})
+d_user_shortcuts = dotdict(
+    {
+        " ": 0,  # idle
+        "w": 1,  # up
+        "s": 2,  # down
+        "d": 3,  # right
+        "a": 4,  # left
+        "q": 5,  # mine_resources
+        "e": 6,  # return_resources
+        "1": 7,  # attack_up
+        "2": 8,  # attack_down
+        "3": 9,  # attack_right
+        "4": 10,  # attack_left
+        "6": 11,  # npc_up
+        "7": 12,  # npc_down
+        "8": 13,  # npc_right
+        "9": 14,  # npc_left
+        "t": 15,  # rifle_infantry_up
+        "z": 16,  # rifle_infantry_down
+        "u": 17,  # rifle_infantry_right
+        "i": 18,  # rifle_infantry_left
+        "f": 19,  # barracks_up
+        "g": 20,  # barracks_down
+        "h": 21,  # barracks_right
+        "j": 22,  # barracks_left
+        "y": 23,  # town_hall_up
+        "x": 24,  # town_hall_down
+        "c": 25,  # town_hall_right
+        "v": 26,  # town_hall_left
+        "b": 27,  # heal_up
+        "n": 28,  # heal_down
+        "m": 29,  # heal_right
+        ",": 30,  # heal_left
+    }
+)
 
 # Reverse dictionary for user shortcuts
-d_user_shortcuts_rev = dotdict({
-    0: ' ',  # idle
-
-    1: 'w',  # up
-    2: 's',  # down
-    3: 'd',  # right
-    4: 'a',  # left
-
-    5: 'q',  # mine_resources
-    6: 'e',  # return_resources
-
-    7: '1',  # attack_up
-    8: '2',  # attack_down
-    9: '3',  # attack_right
-    10: '4',  # attack_left
-
-    11: '6',  # npc_up
-    12: '7',  # npc_down
-    13: '8',  # npc_right
-    14: '9',  # npc_left
-
-    15: 't',  # rifle_infantry_up
-    16: 'z',  # rifle_infantry_down
-    17: 'u',  # rifle_infantry_right
-    18: 'i',  # rifle_infantry_left
-
-    19: 'f',  # barracks_up
-    20: 'g',  # barracks_down
-    21: 'h',  # barracks_right
-    22: 'j',  # barracks_left
-
-    23: 'y',  # town_hall_up
-    24: 'x',  # town_hall_down
-    25: 'c',  # town_hall_right
-    26: 'v',  # town_hall_left
-
-    27: 'b',  # heal_up
-    28: 'n',  # heal_down
-    29: 'm',  # heal_right
-    30: ',',  # heal_left
-})
+d_user_shortcuts_rev = dotdict(
+    {
+        0: " ",  # idle
+        1: "w",  # up
+        2: "s",  # down
+        3: "d",  # right
+        4: "a",  # left
+        5: "q",  # mine_resources
+        6: "e",  # return_resources
+        7: "1",  # attack_up
+        8: "2",  # attack_down
+        9: "3",  # attack_right
+        10: "4",  # attack_left
+        11: "6",  # npc_up
+        12: "7",  # npc_down
+        13: "8",  # npc_right
+        14: "9",  # npc_left
+        15: "t",  # rifle_infantry_up
+        16: "z",  # rifle_infantry_down
+        17: "u",  # rifle_infantry_right
+        18: "i",  # rifle_infantry_left
+        19: "f",  # barracks_up
+        20: "g",  # barracks_down
+        21: "h",  # barracks_right
+        22: "j",  # barracks_left
+        23: "y",  # town_hall_up
+        24: "x",  # town_hall_down
+        25: "c",  # town_hall_right
+        26: "v",  # town_hall_left
+        27: "b",  # heal_up
+        28: "n",  # heal_down
+        29: "m",  # heal_right
+        30: ",",  # heal_left
+    }
+)
 
 # Colors of actors displayed in Pygame
-d_a_color = dotdict({
-    1: (230, 0, 50),  # Gold
-    2: (0, 165, 208),  # Work
-    3: (255, 156, 255),  # Barr
-    4: (152, 0, 136),  # Rifl
-    5: (235, 255, 0),  # Hall
-})
+d_a_color = dotdict(
+    {
+        1: (230, 0, 50),  # Gold
+        2: (0, 165, 208),  # Work
+        3: (255, 156, 255),  # Barr
+        4: (152, 0, 136),  # Rifl
+        5: (235, 255, 0),  # Hall
+    }
+)
 
 
 class Configuration:
     class _NNetArgs:
-        def __init__(self,
-                     use_one_hot_encoder,
-                     lr,
-                     dropout,
-                     epochs,
-                     batch_size,
-                     cuda,
-                     num_channels):
-
+        def __init__(
+            self,
+            use_one_hot_encoder,
+            lr,
+            dropout,
+            epochs,
+            batch_size,
+            cuda,
+            num_channels,
+        ):
             self.lr = lr  # learning rate
             self.dropout = dropout
-            self.epochs = epochs  # times training examples are iterated through learning process
-            self.batch_size = batch_size  # how many train examples are taken together for learning
+            self.epochs = (
+                epochs  # times training examples are iterated through learning process
+            )
+            self.batch_size = (
+                batch_size  # how many train examples are taken together for learning
+            )
             self.cuda = cuda  # this is only relevant when using TF GPU
             self.num_channels = num_channels  # used by nnet conv layers
 
@@ -297,24 +365,25 @@ class Configuration:
                 self.encoder = NumericEncoder()
 
     class _GameConfig:
-        def __init__(self,
-                     onehot_encoder,
-                     money_increment,
-                     initial_gold,
-                     maximum_gold,
-                     sacrificial_heal,
-                     heal_amount,
-                     heal_cost,
-                     use_timeout,
-                     max_time,
-                     damage,
-                     destroy_all,
-                     a_max_health,
-                     a_cost,
-                     acts_enabled,
-                     score_function,
-                     timeout):
-
+        def __init__(
+            self,
+            onehot_encoder,
+            money_increment,
+            initial_gold,
+            maximum_gold,
+            sacrificial_heal,
+            heal_amount,
+            heal_cost,
+            use_timeout,
+            max_time,
+            damage,
+            destroy_all,
+            a_max_health,
+            a_cost,
+            acts_enabled,
+            score_function,
+            timeout,
+        ):
             if onehot_encoder:
                 self.encoder = OneHotEncoder()
             else:
@@ -374,95 +443,114 @@ class Configuration:
                 self.DAMAGE = 10000
 
             # Maximum health that actor can have - this is also initial health that actor has.
-            self.a_max_health = dotdict(a_max_health or {
-                1: 10,  # Gold
-                2: 10,  # Work
-                3: 20,  # Barr
-                4: 20,  # Rifl
-                5: 30,  # Hall
-            })
+            self.a_max_health = dotdict(
+                a_max_health
+                or {
+                    1: 10,  # Gold
+                    2: 10,  # Work
+                    3: 20,  # Barr
+                    4: 20,  # Rifl
+                    5: 30,  # Hall
+                }
+            )
 
             # Cost of actor to produce (key - actor type, value - number of gold coins to pay)
-            self.a_cost = dotdict(a_cost or {
-                1: 0,  # Gold
-                2: 1,  # Work
-                3: 4,  # Barr
-                4: 2,  # Rifl
-                5: 7,  # Hall
-            })
-            self.acts_enabled = dotdict(acts_enabled or {
-                "idle": False,
-                "up": True,
-                "down": True,
-                "right": True,
-                "left": True,
-                "mine_resources": True,
-                "return_resources": True,
-                "attack": True,
-                "npc": True,
-                "rifle_infantry": True,
-                "barracks": True,
-                "town_hall": True,
-                "heal": True
-            })
+            self.a_cost = dotdict(
+                a_cost
+                or {
+                    1: 0,  # Gold
+                    2: 1,  # Work
+                    3: 4,  # Barr
+                    4: 2,  # Rifl
+                    5: 7,  # Hall
+                }
+            )
+            self.acts_enabled = dotdict(
+                acts_enabled
+                or {
+                    "idle": False,
+                    "up": True,
+                    "down": True,
+                    "right": True,
+                    "left": True,
+                    "mine_resources": True,
+                    "return_resources": True,
+                    "attack": True,
+                    "npc": True,
+                    "rifle_infantry": True,
+                    "barracks": True,
+                    "town_hall": True,
+                    "heal": True,
+                }
+            )
             self.score_function = score_function
 
     class _PitArgs:
-
-        def __init__(self,
-                     player1_type,
-                     player2_type,
-                     player1_config,
-                     player2_config,
-                     player1_onehot_encoder,
-                     player2_onehot_encoder,
-                     player1_model_file,
-                     player2_model_file,
-                     num_games):
-
+        def __init__(
+            self,
+            player1_type,
+            player2_type,
+            player1_config,
+            player2_config,
+            player1_onehot_encoder,
+            player2_onehot_encoder,
+            player1_model_file,
+            player2_model_file,
+            num_games,
+        ):
             self.player1_type = player1_type
             self.player2_type = player2_type
             self.player1_model_file = player1_model_file
             self.player2_model_file = player2_model_file
             self.player1_onehot_encoder = player1_onehot_encoder
             self.player2_onehot_encoder = player2_onehot_encoder
-            self.player1_config = player1_config or {'numMCTSSims': 2, 'cpuct': 1.0}
-            self.player2_config = player2_config or {'numMCTSSims': 2, 'cpuct': 1.0}
+            self.player1_config = player1_config or {"numMCTSSims": 2, "cpuct": 1.0}
+            self.player2_config = player2_config or {"numMCTSSims": 2, "cpuct": 1.0}
             self.num_games = num_games
 
-        def create_players(self,
-                           game):
+        def create_players(self, game):
+            return self._create_player(
+                game,
+                self.player1_type,
+                self.player1_config,
+                self.player1_onehot_encoder,
+                self.player1_model_file,
+            ), self._create_player(
+                game,
+                self.player1_type,
+                self.player1_config,
+                self.player2_onehot_encoder,
+                self.player2_model_file,
+            )
 
-            return self._create_player(game, self.player1_type, self.player1_config, self.player1_onehot_encoder, self.player1_model_file), self._create_player(game, self.player1_type, self.player1_config, self.player2_onehot_encoder, self.player2_model_file)
-
-        def _create_player(self,
-                           game,
-                           player_type: str,
-                           player_config: dict,
-                           onehot_encoder: bool,
-                           player_model_file: str):
+        def _create_player(
+            self,
+            game,
+            player_type: str,
+            player_config: dict,
+            onehot_encoder: bool,
+            player_model_file: str,
+        ):
             from rts.RTSPlayers import RandomPlayer, GreedyRTSPlayer, HumanRTSPlayer
 
-            if player_type == 'nnet':
+            if player_type == "nnet":
                 if player_config is None:
                     print("Invalid pit configuration. Returning")
                     exit(1)
-                return self._PitNNetPlayer(game, player_config, onehot_encoder, player_model_file).play
-            if player_type == 'random':
+                return self._PitNNetPlayer(
+                    game, player_config, onehot_encoder, player_model_file
+                ).play
+            if player_type == "random":
                 return RandomPlayer(game).play
-            if player_type == 'greedy':
+            if player_type == "greedy":
                 return GreedyRTSPlayer(game).play
-            if player_type == 'human':
+            if player_type == "human":
                 return HumanRTSPlayer(game).play
             print("Invalid player type. Returning")
             exit(1)
 
         class _PitNNetPlayer:
-            def __init__(self,
-                         g,
-                         player_config,
-                         onehot_encoder,
-                         player_model_file):
+            def __init__(self, g, player_config, onehot_encoder, player_model_file):
                 from rts.keras.NNet import NNetWrapper as NNet
                 from MCTS import MCTS
 
@@ -471,34 +559,38 @@ class Configuration:
                 else:
                     encoder = NumericEncoder()
                 n1 = NNet(g, encoder)
-                n1.load_checkpoint('.\\..\\temp\\', player_model_file)
-                args1 = dotdict(player_config or {'numMCTSSims': 2, 'cpuct': 1.0})
+                n1.load_checkpoint(".\\..\\temp\\", player_model_file)
+                args1 = dotdict(player_config or {"numMCTSSims": 2, "cpuct": 1.0})
                 mcts1 = MCTS(g, n1, args1)
                 self.play = lambda x: np.argmax(mcts1.getActionProb(x, temp=0))
 
     class _LearnArgs:
-        def __init__(self,
-                     num_iters,
-                     num_eps,
-                     temp_threshold,
-                     update_threshold,
-                     maxlen_of_queue,
-                     num_mcts_sims,
-                     arena_compare,
-                     cpuct,
-                     checkpoint,
-                     load_model,
-                     load_folder_file,
-                     num_iters_for_train_examples_history,
-                     save_train_examples,
-                     load_train_examples):
+        def __init__(
+            self,
+            num_iters,
+            num_eps,
+            temp_threshold,
+            update_threshold,
+            maxlen_of_queue,
+            num_mcts_sims,
+            arena_compare,
+            cpuct,
+            checkpoint,
+            load_model,
+            load_folder_file,
+            num_iters_for_train_examples_history,
+            save_train_examples,
+            load_train_examples,
+        ):
             self.numIters = num_iters  # total number of games played from start to finish is numIters * numEps
             self.numEps = num_eps  # How may game is played in this episode
             self.tempThreshold = temp_threshold
             self.updateThreshold = update_threshold  # Percentage that new model has to surpass by win rate to replace old model
             self.maxlenOfQueue = maxlen_of_queue
             self.numMCTSSims = num_mcts_sims  # How many MCTS tree searches are performing (mind that this MCTS doesnt use simulations)
-            self.arenaCompare = arena_compare  # How many comparisons are made between old and new model
+            self.arenaCompare = (
+                arena_compare  # How many comparisons are made between old and new model
+            )
             self.cpuct = cpuct  # search parameter for MCTS
 
             self.checkpoint = checkpoint
@@ -510,87 +602,79 @@ class Configuration:
             self.load_train_examples = load_train_examples
 
     class BoardTile:
-        def __init__(self,
-                     player: int,
-                     x: int,
-                     y: int,
-                     a_type: str):
+        def __init__(self, player: int, x: int, y: int, a_type: str):
             self.player = player
             self.x = x
             self.y = y
             self.a_type = a_type  # 'Gold'...
 
-    def __init__(self,
-                 grid_size=8,
-                 learn_visibility=0,
-                 pit_visibility=4,
-
-                 onehot_encoder_player1: bool = True,
-                 money_increment_player1: int = 3,
-                 initial_gold_player1: int = 1,
-                 maximum_gold_player1: int = 255,
-                 sacrificial_heal_player1: bool = False,
-                 heal_amount_player1: int = 5,
-                 heal_cost_player1: int = 1,
-                 use_timeout_player1: bool = True,
-                 max_time_player1: int = 2048,
-                 damage_player1: int = 20,
-                 destroy_all_player1: bool = False,
-                 a_max_health_player1: dict = None,
-                 a_cost_player1: dict = None,
-                 acts_enabled_player1: dict = None,
-                 score_function_player1: int = 3,
-                 timeout_player1: int = 200,
-                 player1_model_file: str = "best_player1.pth.tar",
-
-                 onehot_encoder_player2: bool = True,
-                 money_increment_player2: int = 3,
-                 initial_gold_player2: int = 1,
-                 maximum_gold_player2: int = 255,
-                 sacrificial_heal_player2: bool = False,
-                 heal_amount_player2: int = 5,
-                 heal_cost_player2: int = 1,
-                 use_timeout_player2: bool = True,
-                 max_time_player2: int = 2048,
-                 damage_player2: int = 20,
-                 destroy_all_player2: bool = False,
-                 a_max_health_player2: dict = None,
-                 a_cost_player2: dict = None,
-                 acts_enabled_player2: dict = None,
-                 score_function_player2: int = 3,
-                 timeout_player2: int = 200,
-                 player2_model_file: str = "best_player2.pth.tar",
-
-                 num_iters: int = 4,
-                 num_eps: int = 4,
-                 temp_threshold: int = 15,
-                 update_threshold: float = 0.6,
-                 maxlen_of_queue: int = 6400,
-                 num_mcts_sims: int = 10,
-                 arena_compare: int = 10,
-                 cpuct: float = 1,
-                 checkpoint: str = '.\\..\\temp\\',
-                 load_model: bool = False,
-                 load_folder_file: Tuple[str, str] = ('.\\..\\temp\\', 'checkpoint_13.pth.tar'),
-                 num_iters_for_train_examples_history: int = 8,
-                 save_train_examples: bool = False,
-                 load_train_examples: bool = False,
-
-                 player1_type: str = 'nnet',
-                 player2_type: str = 'nnet',
-                 player1_config: dict = None,
-                 player2_config: dict = None,
-                 num_games: int = 4,
-
-                 use_one_hot_encoder: bool = True,
-                 lr: float = 0.01,
-                 dropout: float = 0.3,
-                 epochs: int = 30,
-                 batch_size: int = 256,
-                 cuda: bool = True,
-                 num_channels: int = 128,
-
-                 initial_board_config: List[BoardTile] = None):
+    def __init__(
+        self,
+        grid_size=8,
+        learn_visibility=0,
+        pit_visibility=4,
+        onehot_encoder_player1: bool = True,
+        money_increment_player1: int = 3,
+        initial_gold_player1: int = 1,
+        maximum_gold_player1: int = 255,
+        sacrificial_heal_player1: bool = False,
+        heal_amount_player1: int = 5,
+        heal_cost_player1: int = 1,
+        use_timeout_player1: bool = True,
+        max_time_player1: int = 2048,
+        damage_player1: int = 20,
+        destroy_all_player1: bool = False,
+        a_max_health_player1: dict = None,
+        a_cost_player1: dict = None,
+        acts_enabled_player1: dict = None,
+        score_function_player1: int = 3,
+        timeout_player1: int = 200,
+        player1_model_file: str = "best_player1.pth.tar",
+        onehot_encoder_player2: bool = True,
+        money_increment_player2: int = 3,
+        initial_gold_player2: int = 1,
+        maximum_gold_player2: int = 255,
+        sacrificial_heal_player2: bool = False,
+        heal_amount_player2: int = 5,
+        heal_cost_player2: int = 1,
+        use_timeout_player2: bool = True,
+        max_time_player2: int = 2048,
+        damage_player2: int = 20,
+        destroy_all_player2: bool = False,
+        a_max_health_player2: dict = None,
+        a_cost_player2: dict = None,
+        acts_enabled_player2: dict = None,
+        score_function_player2: int = 3,
+        timeout_player2: int = 200,
+        player2_model_file: str = "best_player2.pth.tar",
+        num_iters: int = 4,
+        num_eps: int = 4,
+        temp_threshold: int = 15,
+        update_threshold: float = 0.6,
+        maxlen_of_queue: int = 6400,
+        num_mcts_sims: int = 10,
+        arena_compare: int = 10,
+        cpuct: float = 1,
+        checkpoint: str = ".\\..\\temp\\",
+        load_model: bool = False,
+        load_folder_file: Tuple[str, str] = (".\\..\\temp\\", "checkpoint_13.pth.tar"),
+        num_iters_for_train_examples_history: int = 8,
+        save_train_examples: bool = False,
+        load_train_examples: bool = False,
+        player1_type: str = "nnet",
+        player2_type: str = "nnet",
+        player1_config: dict = None,
+        player2_config: dict = None,
+        num_games: int = 4,
+        use_one_hot_encoder: bool = True,
+        lr: float = 0.01,
+        dropout: float = 0.3,
+        epochs: int = 30,
+        batch_size: int = 256,
+        cuda: bool = True,
+        num_channels: int = 128,
+        initial_board_config: List[BoardTile] = None,
+    ):
         """
         :param grid_size: Grid size of game for example 8,6...
         :param learn_visibility: How much console should output while running learn. If visibility.verbose > 3, Pygame is shown
@@ -767,7 +851,8 @@ class Configuration:
             a_cost=a_cost_player1,
             acts_enabled=acts_enabled_player1,
             score_function=score_function_player1,
-            timeout=timeout_player1)
+            timeout=timeout_player1,
+        )
 
         self.player2_config = self._GameConfig(
             onehot_encoder=onehot_encoder_player2,
@@ -785,7 +870,8 @@ class Configuration:
             a_cost=a_cost_player2,
             acts_enabled=acts_enabled_player2,
             score_function=score_function_player2,
-            timeout=timeout_player2)
+            timeout=timeout_player2,
+        )
 
         self.learn_args = self._LearnArgs(
             num_iters=num_iters,
@@ -801,7 +887,8 @@ class Configuration:
             load_folder_file=load_folder_file,
             num_iters_for_train_examples_history=num_iters_for_train_examples_history,
             save_train_examples=save_train_examples,
-            load_train_examples=load_train_examples)
+            load_train_examples=load_train_examples,
+        )
 
         self.pit_args = self._PitArgs(
             player1_type=player1_type,
@@ -812,7 +899,7 @@ class Configuration:
             player2_onehot_encoder=onehot_encoder_player2,
             player1_model_file=player1_model_file,
             player2_model_file=player2_model_file,
-            num_games=num_games
+            num_games=num_games,
         )
         self.nnet_args = self._NNetArgs(
             use_one_hot_encoder=use_one_hot_encoder,
@@ -821,72 +908,93 @@ class Configuration:
             epochs=epochs,
             batch_size=batch_size,
             cuda=cuda,
-            num_channels=num_channels
+            num_channels=num_channels,
         )
 
         if initial_board_config:
             self.initial_board_config = []
             for board_tile in initial_board_config:
-                self.initial_board_config.append(dotdict({
-                    'x': board_tile.x,
-                    'y': board_tile.y,
-                    'player': board_tile.player,
-                    'a_type': d_a_type[board_tile.a_type],
-                    'health': self.player1_config.a_max_health[d_a_type[board_tile.a_type]] if board_tile.player == 1 else self.player2_config.a_max_health[d_a_type[board_tile.a_type]],
-                    'carry': 0,
-                    'gold': self.player1_config.INITIAL_GOLD if board_tile.player == 1 else self.player2_config.INITIAL_GOLD,
-                    'timeout': self.player1_config.TIMEOUT if board_tile.player == 1 else self.player2_config.TIMEOUT
-                }))
+                self.initial_board_config.append(
+                    dotdict(
+                        {
+                            "x": board_tile.x,
+                            "y": board_tile.y,
+                            "player": board_tile.player,
+                            "a_type": d_a_type[board_tile.a_type],
+                            "health": self.player1_config.a_max_health[
+                                d_a_type[board_tile.a_type]
+                            ]
+                            if board_tile.player == 1
+                            else self.player2_config.a_max_health[
+                                d_a_type[board_tile.a_type]
+                            ],
+                            "carry": 0,
+                            "gold": self.player1_config.INITIAL_GOLD
+                            if board_tile.player == 1
+                            else self.player2_config.INITIAL_GOLD,
+                            "timeout": self.player1_config.TIMEOUT
+                            if board_tile.player == 1
+                            else self.player2_config.TIMEOUT,
+                        }
+                    )
+                )
         else:
             self.initial_board_config = initial_board_config or [
-
-                dotdict({
-                    'x': int(self.grid_size / 2) - 1,
-                    'y': int(self.grid_size / 2),
-                    'player': 1,
-                    'a_type': d_a_type['Gold'],
-                    'health': self.player1_config.a_max_health[d_a_type['Gold']],
-                    'carry': 0,
-                    'gold': self.player1_config.INITIAL_GOLD,
-                    'timeout': self.player1_config.TIMEOUT
-                }),
-                dotdict({
-                    'x': int(self.grid_size / 2),
-                    'y': int(self.grid_size / 2),
-                    'player': -1,
-                    'a_type': d_a_type['Gold'],
-                    'health': self.player2_config.a_max_health[d_a_type['Gold']],
-                    'carry': 0,
-                    'gold': self.player2_config.INITIAL_GOLD,
-                    'timeout': self.player2_config.TIMEOUT
-                }),
-                dotdict({
-                    'x': int(self.grid_size / 2) - 1,
-                    'y': int(self.grid_size / 2) - 1,
-                    'player': 1,
-                    'a_type': d_a_type['Hall'],
-                    'health': self.player1_config.a_max_health[d_a_type['Hall']],
-                    'carry': 0,
-                    'gold': self.player1_config.INITIAL_GOLD,
-                    'timeout': self.player1_config.TIMEOUT
-                }),
-                dotdict({
-                    'x': int(self.grid_size / 2),
-                    'y': int(self.grid_size / 2) - 1,
-                    'player': -1,
-                    'a_type': d_a_type['Hall'],
-                    'health': self.player2_config.a_max_health[d_a_type['Hall']],
-                    'carry': 0,
-                    'gold': self.player2_config.INITIAL_GOLD,
-                    'timeout': self.player2_config.TIMEOUT
-                }),
+                dotdict(
+                    {
+                        "x": int(self.grid_size / 2) - 1,
+                        "y": int(self.grid_size / 2),
+                        "player": 1,
+                        "a_type": d_a_type["Gold"],
+                        "health": self.player1_config.a_max_health[d_a_type["Gold"]],
+                        "carry": 0,
+                        "gold": self.player1_config.INITIAL_GOLD,
+                        "timeout": self.player1_config.TIMEOUT,
+                    }
+                ),
+                dotdict(
+                    {
+                        "x": int(self.grid_size / 2),
+                        "y": int(self.grid_size / 2),
+                        "player": -1,
+                        "a_type": d_a_type["Gold"],
+                        "health": self.player2_config.a_max_health[d_a_type["Gold"]],
+                        "carry": 0,
+                        "gold": self.player2_config.INITIAL_GOLD,
+                        "timeout": self.player2_config.TIMEOUT,
+                    }
+                ),
+                dotdict(
+                    {
+                        "x": int(self.grid_size / 2) - 1,
+                        "y": int(self.grid_size / 2) - 1,
+                        "player": 1,
+                        "a_type": d_a_type["Hall"],
+                        "health": self.player1_config.a_max_health[d_a_type["Hall"]],
+                        "carry": 0,
+                        "gold": self.player1_config.INITIAL_GOLD,
+                        "timeout": self.player1_config.TIMEOUT,
+                    }
+                ),
+                dotdict(
+                    {
+                        "x": int(self.grid_size / 2),
+                        "y": int(self.grid_size / 2) - 1,
+                        "player": -1,
+                        "a_type": d_a_type["Hall"],
+                        "health": self.player2_config.a_max_health[d_a_type["Hall"]],
+                        "carry": 0,
+                        "gold": self.player2_config.INITIAL_GOLD,
+                        "timeout": self.player2_config.TIMEOUT,
+                    }
+                ),
             ]
 
     def set_runner(self, runner: str):
         self.runner = runner
-        if runner == 'pit':
+        if runner == "pit":
             self.visibility = self._pit_visibility
-        elif runner == 'learn':
+        elif runner == "learn":
             self.visibility = self._learn_visibility
         else:
             print("Unrecognised runner. Returning")

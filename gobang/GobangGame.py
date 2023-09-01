@@ -1,6 +1,7 @@
 from __future__ import print_function
 import sys
-sys.path.append('..')
+
+sys.path.append("..")
 from Game import Game
 from .GobangLogic import Board
 import numpy as np
@@ -59,17 +60,31 @@ class GobangGame(Game):
 
         for w in range(self.n):
             for h in range(self.n):
-                if (w in range(self.n - n + 1) and board[w][h] != 0 and
-                        len(set(board[i][h] for i in range(w, w + n))) == 1):
+                if (
+                    w in range(self.n - n + 1)
+                    and board[w][h] != 0
+                    and len(set(board[i][h] for i in range(w, w + n))) == 1
+                ):
                     return board[w][h]
-                if (h in range(self.n - n + 1) and board[w][h] != 0 and
-                        len(set(board[w][j] for j in range(h, h + n))) == 1):
+                if (
+                    h in range(self.n - n + 1)
+                    and board[w][h] != 0
+                    and len(set(board[w][j] for j in range(h, h + n))) == 1
+                ):
                     return board[w][h]
-                if (w in range(self.n - n + 1) and h in range(self.n - n + 1) and board[w][h] != 0 and
-                        len(set(board[w + k][h + k] for k in range(n))) == 1):
+                if (
+                    w in range(self.n - n + 1)
+                    and h in range(self.n - n + 1)
+                    and board[w][h] != 0
+                    and len(set(board[w + k][h + k] for k in range(n))) == 1
+                ):
                     return board[w][h]
-                if (w in range(self.n - n + 1) and h in range(n - 1, self.n) and board[w][h] != 0 and
-                        len(set(board[w + l][h - l] for l in range(n))) == 1):
+                if (
+                    w in range(self.n - n + 1)
+                    and h in range(n - 1, self.n)
+                    and board[w][h] != 0
+                    and len(set(board[w + l][h - l] for l in range(n))) == 1
+                ):
                     return board[w][h]
         if b.has_legal_moves():
             return 0
@@ -82,7 +97,7 @@ class GobangGame(Game):
     # modified
     def getSymmetries(self, board, pi):
         # mirror, rotational
-        assert(len(pi) == self.n**2 + 1)  # 1 for pass
+        assert len(pi) == self.n**2 + 1  # 1 for pass
         pi_board = np.reshape(pi[:-1], (self.n, self.n))
         l = []
 
@@ -109,9 +124,9 @@ class GobangGame(Game):
         print("")
         print(" -----------------------")
         for y in range(n):
-            print(y, "|", end="")    # print the row #
+            print(y, "|", end="")  # print the row #
             for x in range(n):
-                piece = board[y][x]    # get the piece to print
+                piece = board[y][x]  # get the piece to print
                 if piece == -1:
                     print("b ", end="")
                 elif piece == 1:

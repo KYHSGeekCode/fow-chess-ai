@@ -3,8 +3,20 @@ from typing import Any
 
 import numpy as np
 
-sys.path.append('../..')
-from rts.src.config import d_a_type, d_acts, A_TYPE_IDX, P_NAME_IDX, CARRY_IDX, MONEY_IDX, NUM_ACTS, ACTS_REV, NUM_ENCODERS, HEALTH_IDX, TIME_IDX
+sys.path.append("../..")
+from rts.src.config import (
+    d_a_type,
+    d_acts,
+    A_TYPE_IDX,
+    P_NAME_IDX,
+    CARRY_IDX,
+    MONEY_IDX,
+    NUM_ACTS,
+    ACTS_REV,
+    NUM_ENCODERS,
+    HEALTH_IDX,
+    TIME_IDX,
+)
 
 """
 Board.py
@@ -15,7 +27,6 @@ can_execute_move is checking if move can be executed and execute_move is applyin
 
 
 class Board:
-
     def __init__(self, n) -> None:
         self.n = n
         self.pieces = np.zeros((self.n, self.n, NUM_ENCODERS))
@@ -168,7 +179,9 @@ class Board:
         """
         self[new_x][new_y] = self[x][y]
         self[x][y] = [0] * NUM_ENCODERS
-        self[x][y][TIME_IDX] = self[new_x][new_y][TIME_IDX]  # set time back to empty tile
+        self[x][y][TIME_IDX] = self[new_x][new_y][
+            TIME_IDX
+        ]  # set time back to empty tile
 
     def _update_money(self, player, money_update):
         """
@@ -193,7 +206,9 @@ class Board:
         self[n_x][n_y][HEALTH_IDX] -= config.DAMAGE
         if self[n_x][n_y][HEALTH_IDX] <= 0:
             self[n_x][n_y] = [0] * NUM_ENCODERS
-            self[n_x][n_y][TIME_IDX] = self[x][y][TIME_IDX]  # set time back to empty tile just in case
+            self[n_x][n_y][TIME_IDX] = self[x][y][
+                TIME_IDX
+            ]  # set time back to empty tile just in case
 
     def _spawn(self, x, y, n_x, n_y, a_type, config):
         """
@@ -205,7 +220,14 @@ class Board:
         :param a_type: type of unit to spawn on new coordinate
         :param config: additional config that is separate for each player (maximum actor health for this type)
         """
-        self[n_x][n_y] = [self[x][y][P_NAME_IDX], a_type, config.a_max_health[a_type], 0, self[x][y][MONEY_IDX], self[x][y][TIME_IDX]]
+        self[n_x][n_y] = [
+            self[x][y][P_NAME_IDX],
+            a_type,
+            config.a_max_health[a_type],
+            0,
+            self[x][y][MONEY_IDX],
+            self[x][y][TIME_IDX],
+        ]
 
     def _heal(self, x, y, n_x, n_y, config):
         """
@@ -226,7 +248,11 @@ class Board:
             self._update_money(self[n_x][n_y][P_NAME_IDX], -config.HEAL_COST)
 
         # clamp value to max
-        self[n_x][n_y][HEALTH_IDX] = self.clamp(self[n_x][n_y][HEALTH_IDX] + config.HEAL_AMOUNT, 0, config.a_max_health[self[n_x][n_y][A_TYPE_IDX]])
+        self[n_x][n_y][HEALTH_IDX] = self.clamp(
+            self[n_x][n_y][HEALTH_IDX] + config.HEAL_AMOUNT,
+            0,
+            config.a_max_health[self[n_x][n_y][A_TYPE_IDX]],
+        )
 
     def get_moves_for_square(self, x, y, config) -> Any:
         """
@@ -277,9 +303,18 @@ class Board:
             return config.acts_enabled.left and self._check_if_empty(x - 1, y)
 
         if act == "mine_resources":
-            return config.acts_enabled.mine_resources and self[x][y][CARRY_IDX] == 0 and self._check_if_nearby(x, y, d_a_type['Gold'])
+            return (
+                config.acts_enabled.mine_resources
+                and self[x][y][CARRY_IDX] == 0
+                and self._check_if_nearby(x, y, d_a_type["Gold"])
+            )
         if act == "return_resources":
-            return config.acts_enabled.return_resources and self[x][y][CARRY_IDX] == 1 and self._check_if_nearby(x, y, d_a_type['Hall'], check_friendly=True) and (config.MAX_GOLD >= self[x][y][MONEY_IDX] + config.MONEY_INC)
+            return (
+                config.acts_enabled.return_resources
+                and self[x][y][CARRY_IDX] == 1
+                and self._check_if_nearby(x, y, d_a_type["Hall"], check_friendly=True)
+                and (config.MAX_GOLD >= self[x][y][MONEY_IDX] + config.MONEY_INC)
+            )
 
         if act == "attack_up":
             return config.acts_enabled.attack and self._check_if_attack(x, y, x, y - 1)
@@ -291,49 +326,121 @@ class Board:
             return config.acts_enabled.attack and self._check_if_attack(x, y, x - 1, y)
 
         if act == "heal_up":
-            return config.acts_enabled.heal and self._check_if_heal(x, y - 1, config=config)
+            return config.acts_enabled.heal and self._check_if_heal(
+                x, y - 1, config=config
+            )
         if act == "heal_down":
-            return config.acts_enabled.heal and self._check_if_heal(x, y + 1, config=config)
+            return config.acts_enabled.heal and self._check_if_heal(
+                x, y + 1, config=config
+            )
         if act == "heal_right":
-            return config.acts_enabled.heal and self._check_if_heal(x + 1, y, config=config)
+            return config.acts_enabled.heal and self._check_if_heal(
+                x + 1, y, config=config
+            )
         if act == "heal_left":
-            return config.acts_enabled.heal and self._check_if_heal(x - 1, y, config=config)
+            return config.acts_enabled.heal and self._check_if_heal(
+                x - 1, y, config=config
+            )
 
         if act == "npc_up":
-            return config.acts_enabled.npc and config.a_cost[2] <= money and self._check_if_empty(x, y - 1)
+            return (
+                config.acts_enabled.npc
+                and config.a_cost[2] <= money
+                and self._check_if_empty(x, y - 1)
+            )
         if act == "npc_down":
-            return config.acts_enabled.npc and config.a_cost[2] <= money and self._check_if_empty(x, y + 1)
+            return (
+                config.acts_enabled.npc
+                and config.a_cost[2] <= money
+                and self._check_if_empty(x, y + 1)
+            )
         if act == "npc_right":
-            return config.acts_enabled.npc and config.a_cost[2] <= money and self._check_if_empty(x + 1, y)
+            return (
+                config.acts_enabled.npc
+                and config.a_cost[2] <= money
+                and self._check_if_empty(x + 1, y)
+            )
         if act == "npc_left":
-            return config.acts_enabled.npc and config.a_cost[2] <= money and self._check_if_empty(x - 1, y)
+            return (
+                config.acts_enabled.npc
+                and config.a_cost[2] <= money
+                and self._check_if_empty(x - 1, y)
+            )
 
         if act == "barracks_up":
-            return config.acts_enabled.barracks and config.a_cost[3] <= money and self._check_if_empty(x, y - 1)
+            return (
+                config.acts_enabled.barracks
+                and config.a_cost[3] <= money
+                and self._check_if_empty(x, y - 1)
+            )
         if act == "barracks_down":
-            return config.acts_enabled.barracks and config.a_cost[3] <= money and self._check_if_empty(x, y + 1)
+            return (
+                config.acts_enabled.barracks
+                and config.a_cost[3] <= money
+                and self._check_if_empty(x, y + 1)
+            )
         if act == "barracks_right":
-            return config.acts_enabled.barracks and config.a_cost[3] <= money and self._check_if_empty(x + 1, y)
+            return (
+                config.acts_enabled.barracks
+                and config.a_cost[3] <= money
+                and self._check_if_empty(x + 1, y)
+            )
         if act == "barracks_left":
-            return config.acts_enabled.barracks and config.a_cost[3] <= money and self._check_if_empty(x - 1, y)
+            return (
+                config.acts_enabled.barracks
+                and config.a_cost[3] <= money
+                and self._check_if_empty(x - 1, y)
+            )
 
         if act == "rifle_infantry_up":
-            return config.acts_enabled.rifle_infantry and config.a_cost[4] <= money and self._check_if_empty(x, y - 1)
+            return (
+                config.acts_enabled.rifle_infantry
+                and config.a_cost[4] <= money
+                and self._check_if_empty(x, y - 1)
+            )
         if act == "rifle_infantry_down":
-            return config.acts_enabled.rifle_infantry and config.a_cost[4] <= money and self._check_if_empty(x, y + 1)
+            return (
+                config.acts_enabled.rifle_infantry
+                and config.a_cost[4] <= money
+                and self._check_if_empty(x, y + 1)
+            )
         if act == "rifle_infantry_right":
-            return config.acts_enabled.rifle_infantry and config.a_cost[4] <= money and self._check_if_empty(x + 1, y)
+            return (
+                config.acts_enabled.rifle_infantry
+                and config.a_cost[4] <= money
+                and self._check_if_empty(x + 1, y)
+            )
         if act == "rifle_infantry_left":
-            return config.acts_enabled.rifle_infantry and config.a_cost[4] <= money and self._check_if_empty(x - 1, y)
+            return (
+                config.acts_enabled.rifle_infantry
+                and config.a_cost[4] <= money
+                and self._check_if_empty(x - 1, y)
+            )
 
         if act == "town_hall_up":
-            return config.acts_enabled.town_hall and config.a_cost[5] <= money and self._check_if_empty(x, y - 1)
+            return (
+                config.acts_enabled.town_hall
+                and config.a_cost[5] <= money
+                and self._check_if_empty(x, y - 1)
+            )
         if act == "town_hall_down":
-            return config.acts_enabled.town_hall and config.a_cost[5] <= money and self._check_if_empty(x, y + 1)
+            return (
+                config.acts_enabled.town_hall
+                and config.a_cost[5] <= money
+                and self._check_if_empty(x, y + 1)
+            )
         if act == "town_hall_right":
-            return config.acts_enabled.town_hall and config.a_cost[5] <= money and self._check_if_empty(x + 1, y)
+            return (
+                config.acts_enabled.town_hall
+                and config.a_cost[5] <= money
+                and self._check_if_empty(x + 1, y)
+            )
         if act == "town_hall_left":
-            return config.acts_enabled.town_hall and config.a_cost[5] <= money and self._check_if_empty(x - 1, y)
+            return (
+                config.acts_enabled.town_hall
+                and config.a_cost[5] <= money
+                and self._check_if_empty(x - 1, y)
+            )
         print("Unrecognised action", act)
         sys.exit(0)
 
@@ -356,7 +463,12 @@ class Board:
         :param n_y: can attack actor on coordinate n_y
         :return: true/false
         """
-        return 0 <= n_x < self.n and 0 <= n_y < self.n and self[x][y][P_NAME_IDX] == -self[n_x][n_y][P_NAME_IDX] and self[n_x][n_y][A_TYPE_IDX] != d_a_type['Gold']
+        return (
+            0 <= n_x < self.n
+            and 0 <= n_y < self.n
+            and self[x][y][P_NAME_IDX] == -self[n_x][n_y][P_NAME_IDX]
+            and self[n_x][n_y][A_TYPE_IDX] != d_a_type["Gold"]
+        )
 
     def _check_if_heal(self, x, y, config):
         """
@@ -366,8 +478,17 @@ class Board:
         :param config: special config specific for each player (max_health, heal_cost)
         :return: true/false
         """
-        return 0 <= x < self.n and 0 <= y < self.n and self[x][y][P_NAME_IDX] == self[x][y][P_NAME_IDX] and self[x][y][A_TYPE_IDX] != d_a_type['Gold'] and self[x][y][A_TYPE_IDX] > 0 and self[x][y][HEALTH_IDX] < config.a_max_health[self[x][y][A_TYPE_IDX]] and (
-                config.SACRIFICIAL_HEAL or self[x][y][MONEY_IDX] - config.HEAL_COST >= 0)
+        return (
+            0 <= x < self.n
+            and 0 <= y < self.n
+            and self[x][y][P_NAME_IDX] == self[x][y][P_NAME_IDX]
+            and self[x][y][A_TYPE_IDX] != d_a_type["Gold"]
+            and self[x][y][A_TYPE_IDX] > 0
+            and self[x][y][HEALTH_IDX] < config.a_max_health[self[x][y][A_TYPE_IDX]]
+            and (
+                config.SACRIFICIAL_HEAL or self[x][y][MONEY_IDX] - config.HEAL_COST >= 0
+            )
+        )
 
     def _check_if_nearby(self, x, y, a_type, check_friendly=False):
         """
@@ -378,14 +499,16 @@ class Board:
         :param check_friendly: check if nearby actor should be friendly
         :return: true/false
         """
-        coordinates = [(x - 1, y + 1),
-                       (x, y + 1),
-                       (x + 1, y + 1),
-                       (x - 1, y),
-                       (x + 1, y),
-                       (x - 1, y - 1),
-                       (x, y - 1),
-                       (x + 1, y - 1)]
+        coordinates = [
+            (x - 1, y + 1),
+            (x, y + 1),
+            (x + 1, y + 1),
+            (x - 1, y),
+            (x + 1, y),
+            (x - 1, y - 1),
+            (x, y - 1),
+            (x + 1, y - 1),
+        ]
         for n_x, n_y in coordinates:
             if 0 <= n_x < self.n and 0 <= n_y < self.n:
                 if self[n_x][n_y][A_TYPE_IDX] == a_type:
@@ -431,7 +554,9 @@ class Board:
         currently_damaged_actors = 0
         for y in range(self.n):
             for x in range(self.n):
-                if self[x][y][P_NAME_IDX] == player and self[x][y][A_TYPE_IDX] != 1:  # for current player and not gold
+                if (
+                    self[x][y][P_NAME_IDX] == player and self[x][y][A_TYPE_IDX] != 1
+                ):  # for current player and not gold
                     if currently_damaged_actors >= destroys_per_round:
                         return
                     self[x][y][HEALTH_IDX] -= damage_amount
@@ -452,7 +577,14 @@ class Board:
         :param player: player that requires to know his money count
         :return: money count for specified player
         """
-        return sum([self[x][y][MONEY_IDX] for x in range(self.n) for y in range(self.n) if self[x][y][P_NAME_IDX] == player])
+        return sum(
+            [
+                self[x][y][MONEY_IDX]
+                for x in range(self.n)
+                for y in range(self.n)
+                if self[x][y][P_NAME_IDX] == player
+            ]
+        )
 
     def get_health_score(self, player) -> int:
         """
@@ -460,7 +592,14 @@ class Board:
         :param player: player that requires to know sum of health for his units
         :return: sum of health for specified player
         """
-        return sum([self[x][y][HEALTH_IDX] for x in range(self.n) for y in range(self.n) if self[x][y][P_NAME_IDX] == player])
+        return sum(
+            [
+                self[x][y][HEALTH_IDX]
+                for x in range(self.n)
+                for y in range(self.n)
+                if self[x][y][P_NAME_IDX] == player
+            ]
+        )
 
     def get_combined_score(self, player) -> int:
         """
@@ -469,4 +608,11 @@ class Board:
         :return: count of money + sum of health of specified players' units
         """
         # money is not worth more than 1hp because this forces players to spend money in order to create new units
-        return sum([self[x][y][HEALTH_IDX] + self[x][y][MONEY_IDX] for x in range(self.n) for y in range(self.n) if self[x][y][P_NAME_IDX] == player])
+        return sum(
+            [
+                self[x][y][HEALTH_IDX] + self[x][y][MONEY_IDX]
+                for x in range(self.n)
+                for y in range(self.n)
+                if self[x][y][P_NAME_IDX] == player
+            ]
+        )

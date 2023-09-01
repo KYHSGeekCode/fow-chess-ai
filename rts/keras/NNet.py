@@ -3,7 +3,7 @@ import sys
 
 import numpy as np
 
-sys.path.append('../..')
+sys.path.append("../..")
 from NeuralNet import NeuralNet
 from rts.keras.RTSNNet import RTSNNet
 from rts.src.config import VERBOSE_MODEL_FIT
@@ -53,7 +53,13 @@ class NNetWrapper(NeuralNet):
         """
         input_boards = self.encoder.encode_multiple(input_boards)
 
-        self.nnet.model.fit(x=input_boards, y=[target_pis, target_vs], batch_size=CONFIG.nnet_args.batch_size, epochs=CONFIG.nnet_args.epochs, verbose=VERBOSE_MODEL_FIT)
+        self.nnet.model.fit(
+            x=input_boards,
+            y=[target_pis, target_vs],
+            batch_size=CONFIG.nnet_args.batch_size,
+            epochs=CONFIG.nnet_args.epochs,
+            verbose=VERBOSE_MODEL_FIT,
+        )
 
     def predict(self, board, player=None):
         """
@@ -72,21 +78,25 @@ class NNetWrapper(NeuralNet):
         pi, v = self.nnet.model.predict(board, verbose=False)
         return pi[0], v[0]
 
-    def save_checkpoint(self, folder='checkpoint', filename='checkpoint.pth.tar'):
+    def save_checkpoint(self, folder="checkpoint", filename="checkpoint.pth.tar"):
         # change extension
         filename = filename.split(".")[0] + ".h5"
-        
+
         filepath = os.path.join(folder, filename)
         if not os.path.exists(folder):
-            print("Checkpoint Directory does not exist! Making directory {}".format(folder))
+            print(
+                "Checkpoint Directory does not exist! Making directory {}".format(
+                    folder
+                )
+            )
             os.mkdir(folder)
         else:
             print("Checkpoint Directory exists! ")
         self.nnet.model.save_weights(filepath)
 
-    def load_checkpoint(self, folder='checkpoint', filename='checkpoint.pth.tar'):
+    def load_checkpoint(self, folder="checkpoint", filename="checkpoint.pth.tar"):
         # change extension
         filename = filename.split(".")[0] + ".h5"
-        
+
         filepath = os.path.join(folder, filename)
         self.nnet.model.load_weights(filepath)

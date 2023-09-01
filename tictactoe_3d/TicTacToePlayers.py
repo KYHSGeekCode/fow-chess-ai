@@ -9,26 +9,30 @@ Date: Jan 5, 2018.
 Based on the OthelloPlayers by Surag Nair.
 
 """
-class RandomPlayer():
+
+
+class RandomPlayer:
     def __init__(self, game):
         self.game = game
 
     def play(self, board):
         a = np.random.randint(self.game.getActionSize())
         valids = self.game.getValidMoves(board, 1)
-        while valids[a]!=1:
+        while valids[a] != 1:
             a = np.random.randint(self.game.getActionSize())
         return a
 
 
-class HumanTicTacToePlayer():
+class HumanTicTacToePlayer:
     def __init__(self, game, n):
         self.game = game
         self.n = n
 
     def play(self, board):
-        boardvalues = np.arange(self.n*self.n*self.n).reshape(self.n,self.n,self.n)
-        validvalue = np.arange(self.n*self.n*self.n)
+        boardvalues = np.arange(self.n * self.n * self.n).reshape(
+            self.n, self.n, self.n
+        )
+        validvalue = np.arange(self.n * self.n * self.n)
         # display(board)
         valid = self.game.getValidMoves(board, 1)
         for i in range(len(valid)):
@@ -36,18 +40,20 @@ class HumanTicTacToePlayer():
                 action = validvalue[i]
                 print(np.argwhere(boardvalues == action))
 
-        while True: 
+        while True:
             # Python 3.x
             a = input()
-            # Python 2.x 
+            # Python 2.x
             # a = raw_input()
 
-            z,x,y = [int(x) for x in a.split(' ')]
-            boardvalues = np.arange(self.n*self.n*self.n).reshape(self.n,self.n,self.n)
+            z, x, y = [int(x) for x in a.split(" ")]
+            boardvalues = np.arange(self.n * self.n * self.n).reshape(
+                self.n, self.n, self.n
+            )
             a = boardvalues[z][x][y]
             if valid[a]:
                 break
             else:
-                print('Invalid')
+                print("Invalid")
 
         return a
