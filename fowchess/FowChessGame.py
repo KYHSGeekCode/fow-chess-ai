@@ -1,7 +1,10 @@
 from __future__ import print_function
 import sys
+from collections import deque
 
 from fow_chess.board import Board
+from fow_chess.chesscolor import ChessColor
+from fow_chess.piece import Piece, PieceType
 
 sys.path.append("..")
 from Game import Game
@@ -19,14 +22,22 @@ Based on the TicTacToe by Evgeny Tyurin.
 
 
 class FowChessGame(Game):
-    def __init__(self, n=3):
-        self.n = n
+    def __init__(self):
+        super().__init__()
+        self.board = Board("")
+        self.previous_white_boards = deque(maxlen=8)
+        self.previous_white_boards.append(self.board.to_fow_fen(ChessColor.WHITE))
+        self.previous_black_boards = deque(maxlen=8)
+        self.previous_black_boards.append(self.board.to_fow_fen(ChessColor.BLACK))
 
     def getInitBoard(self):
         # return initial board (numpy board)
-        board = Board("")
-        # TODO to npy
-        return np.array(b.pieces)
+        self.board = Board("")
+        self.previous_white_boards = deque(maxlen=8)
+        self.previous_white_boards.append(self.board.to_fow_fen(ChessColor.WHITE))
+        self.previous_black_boards = deque(maxlen=8)
+        self.previous_black_boards.append(self.board.to_fow_fen(ChessColor.BLACK))
+        return self.board_to_npy(ChessColor.WHITE)
 
     def getBoardSize(self):
         # (a,b) tuple
@@ -34,8 +45,7 @@ class FowChessGame(Game):
 
     def getActionSize(self):
         # return number of actions
-        # TODO
-        return self.n * self.n + 1
+        return 8 * 8 * 73
 
     def getNextState(self, board, player, action):
         # TODO action encoding
@@ -87,7 +97,7 @@ class FowChessGame(Game):
     def getSymmetries(self, board, pi):
         # TODO: Maybe []?
         # mirror, rotational
-        assert len(pi) == self.n**2 + 1  # 1 for pass
+        assert len(pi) == self.n ** 2 + 1  # 1 for pass
         pi_board = np.reshape(pi[:-1], (self.n, self.n))
         l = []
 
@@ -137,3 +147,58 @@ class FowChessGame(Game):
         for _ in range(n):
             print("-", end="-")
         print("--")
+
+    def board_to_npy(self, color: ChessColor):
+        """
+        https://pettingzoo.farama.org/environments/classic/chess/
+        Like AlphaZero, the main observation space is an 8x8 image representing the board. It has 111 channels representing:
+
+        Channels 0 - 3: Castling rights:
+        Channel 0: All ones if white can castle queenside
+        Channel 1: All ones if white can castle kingside
+        Channel 2: All ones if black can castle queenside
+        Channel 3: All ones if black can castle kingside
+        Channel 4: Is black or white
+        Channel 5: A move clock counting up to the 50 move rule. Represented by a single channel where the n th element in the flattened channel is set if there has been n moves
+        Channel 6: All ones to help neural networks find board edges in padded convolutions
+        Channel 7 - 18: One channel for each piece type and player color combination. For example, there is a specific channel that represents black knights. An index of this channel is set to 1 if a black knight is in the corresponding spot on the game board, otherwise, it is set to 0. Similar to LeelaChessZero, en passant possibilities are represented by displaying the vulnerable pawn on the 8th row instead of the 5th.
+        Channel 19: represents whether a position has been seen before (whether a position is a 2-fold repetition)
+        Channel 20 - 111 represents the previous 7 boards, with each board represented by 13 channels. The latest board occupies the first 13 channels, followed by the second latest board, and so on. These 13 channels correspond to channels 7 - 20.
+        Similar to AlphaZero, our observation space follows a stacking approach, where it accumulates the previous 8 board observations.
+        """
+        number_of_channels = 112
+        board_representation = np.zeros((8, 8, number_of_channels))
+        board_deque = self.previous_white_boards if color == ChessColor.WHITE else self.previous_black_boards
+
+        for idx, board in enumerate(board_deque):
+            base_channel = idx * 14
+            for position, piece in board.pieces.items():
+                channel = get_channel_for_piece(piece)  # A function to get the correct channel based on the piece
+                board_representation[position.file][position.rank][base_channel + 7 + channel] = 1
+            board_representation[:, :, base_channel + 0] = board.castling[ChessColor.WHITE][0]  # White queenside
+            board_representation[:, :, base_channel + 1] = board.castling[ChessColor.WHITE][1]  # White kingside
+            board_representation[:, :, base_channel + 2] = board.castling[ChessColor.BLACK][0]  # Black queenside
+            board_representation[:, :, base_channel + 3] = board.castling[ChessColor.BLACK][1]  # Black kingside
+            board_representation[:, :, base_channel + 4] = 0 if board.side_to_move == ChessColor.WHITE else 1
+            board_representation[:, :, base_channel + 5].flat[board.halfmove_clock] = 1
+            board_representation[:, :, base_channel + 6] = 1
+            board_representation[:, :, base_channel + 19] = 1  # TODO : Two fold repetition
+        return board_representation
+
+
+def get_channel_for_piece(piece: Piece) -> int:
+    color = piece.color
+    piece_type = piece.type
+    ordinal = {
+        PieceType.PAWN: 0,
+        PieceType.KNIGHT: 1,
+        PieceType.BISHOP: 2,
+        PieceType.ROOK: 3,
+        PieceType.QUEEN: 4,
+        PieceType.KING: 5,
+    }
+    color_ordinal = {
+        ChessColor.WHITE: 0,
+        ChessColor.BLACK: 1,
+    }
+    return ordinal[piece_type] + color_ordinal[color] * len(ordinal)
